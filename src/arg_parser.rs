@@ -1,4 +1,12 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub struct Arguments {
+    pub filters: Vec<Argument>,
+    pub output: Option<String>,
+    pub stdin: Option<String>,
+}
+
+
+#[derive(Debug, Clone)]
 pub enum Argument {
     Category(String),
     Type(String),
@@ -14,8 +22,8 @@ pub enum ParserError {
 }
 
 
-impl Argument {
-    pub fn parse(arg_string: Vec<String>) -> Result<Vec<Argument>, ParserError> {
+impl Arguments {
+    pub fn parse(arg_string: Vec<String>) -> Result<Self, ParserError> {
 
         let mut start_index = 0;
         let mut arguments: Vec<Argument> = vec![];
@@ -36,10 +44,28 @@ impl Argument {
             }
         }
 
-        return Ok(arguments);
+        let mut arg_struct: Self = Self {
+            filters: vec![],
+            output: None,
+            stdin: None
+        };
+
+        for i in arguments {
+            match i {
+                Argument::Category(t) => arg_struct.filters.push(Argument::Category(t)),
+                Argument::Type(t) => arg_struct.filters.push(Argument::Type(t)),
+                Argument::Keywords(t) => arg_struct.filters.push(Argument::Keywords(t)),
+                Argument::Exclude(t) => arg_struct.filters.push(Argument::Exclude(t)),
+
+                Argument::Output(t) => arg_struct.output = Some(t),
+                Argument::Stdin(t) => arg_struct.stdin = Some(t)
+            }
+        }
+
+        return Ok(arg_struct);
     }
 
-    fn enumize(arguments: &[String]) -> Result<(usize, Self), ParserError> {
+    fn enumize(arguments: &[String]) -> Result<(usize, Argument), ParserError> {
         return match arguments[0].as_str() {
             "--category" => {
                 Ok((2, Argument::Category(arguments[1].clone())))
