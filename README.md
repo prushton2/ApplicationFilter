@@ -5,8 +5,9 @@ A CLI app that filters your /usr/share/applications by fields provided in the .d
 ## Manual
 | Flag | Description | Example |
 |--|--|--|
-| `--Category {category}`| Filter apps by category separated by semicolon (not case sensitive) | `--Category System;Network` |
-| `--Type {type}`| Filter apps by type separated by semicolon (not case sensitive) | `--Type Application` |
-| `--Keywords {keywords}`| Filter apps by keywords separated by semicolon (not case sensitive) | `--Type GPU;Radeon` |
-| `--Exclude {flag}`| Remove apps that fit the flag's criteria | `--Exclude --Type GPU;Radeon` |
-| `--Output {field}`| What to output for apps that meet the filter | `--Output Exec` <br> `--Output Name` |
+| `--category {category}`| Filter apps by category separated by semicolon (not case sensitive) | `--category System;Network` |
+| `--type {type}`| Filter apps by type separated by semicolon (not case sensitive) | `--type Application` |
+| `--keywords {keywords}`| Filter apps by keywords separated by semicolon (not case sensitive) | `--type GPU;Radeon` |
+| `--exclude {flag}`| Remove apps that fit the flag's criteria | `--exclude --rype GPU;Radeon` |
+| `--output {field}`| What to output for apps that meet the filter | `--output exec` <br> `--output Name` |
+| `--stdin {field}` | search apps for the field with the value provided in stdin, and then output the entire .desktop file or a specific field provided with `--output` | `--stdin Name`<br>`--stdin exec`
