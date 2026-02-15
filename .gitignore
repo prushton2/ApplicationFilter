@@ -1,1 +1,6 @@
 /target
+
+# PKGBUILD stuff
+/pkg
+/src/target
+/ApplicationFilter*
