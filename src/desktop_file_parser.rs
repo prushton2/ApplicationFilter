@@ -35,7 +35,7 @@ impl DesktopFile {
             match parts.nth(0).expect("No component").to_lowercase().as_str() {
                 "name" => {self.name = parts.nth(0).expect("God i hope you dont see this error").to_string()}
                 "exec" => {self.exec = parts.nth(0).expect("God i hope you dont see this error").to_string()}
-                
+
                 "type" => {self._type = parts.nth(0).expect("God i hope you dont see this error").to_string().to_lowercase()}
 
                 "categories" => {self.categories = parts.nth(0).expect("God i hope you dont see this error").to_string().to_lowercase().split(";").map(|s| s.to_string()).collect()}
@@ -82,6 +82,14 @@ impl DesktopFile {
             },
             arg_parser::Argument::Exclude(t) => return !self.passes_check(t),
             _ => return false
+        }
+    }
+
+    pub fn get(&self, field: &str) -> &str {
+        return match field {
+            "name" => &self.name,
+            "exec" => &self.exec,
+            _ => &self.filename
         }
     }
 }

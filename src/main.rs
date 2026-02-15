@@ -1,4 +1,3 @@
-use std::env::args;
 use std::fs;
 use std::process::exit;
 
@@ -9,18 +8,20 @@ fn main() {
     // let arg_string: String = String::from("--category network --type application --output name");
     // let vec: Vec<String> = arg_string.split(" ").map(|s| s.to_string()).collect();
     // ;
-    let clargs: Vec<String> = std::env::args().collect();
-    let args = &clargs[1..];
-    
-    let args = match arg_parser::Arguments::parse(args.to_vec()) {
+    let full_clargs: Vec<String> = std::env::args().collect();
+    let clargs = &full_clargs[1..];
+
+    let args = match arg_parser::Arguments::parse(clargs.to_vec()) {
         Ok(t) => t,
         Err(arg_parser::ParserError::InvalidArgument(t)) => {
             println!("Invalid Argument: {}", t);
             exit(1);
         }
+        Err(arg_parser::ParserError::NoOutputFlag) => {
+            println!("No output flag specified. Use --output <field> to specify the field to output for each application");
+            exit(1);
+        }
     };
-
-    println!("{:?}", args);
 
     let entries = fs::read_dir("/usr/share/applications").unwrap();
     // println!("{:?}", entries);
@@ -36,10 +37,7 @@ fn main() {
         data.parse_desktop_file(file, filepath.into_os_string().into_string().unwrap());
         if data.passes_checks(&args) {
             // println!("{:?}", data.name)
-            stdout.push_str(data.name.as_str());
-            stdout.push_str("\n");
-            stdout.push_str(data.filename.as_str());
-            stdout.push_str("\n");
+            stdout.push_str(data.get(&args.output.clone().unwrap()));
             stdout.push_str("\n");
         }
     }

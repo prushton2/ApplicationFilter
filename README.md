@@ -5,7 +5,7 @@ A CLI app that filters your /usr/share/applications by fields provided in the .d
 ## Manual
 | Flag | Description | Example |
 |--|--|--|
-| `--category {category}`| Filter apps by category separated by semicolon (not case sensitive) | `--category System;Network` |
+| `--categories {categories}`| Filter apps by category separated by semicolon (not case sensitive) | `--categories System;Network` |
 | `--type {type}`| Filter apps by type separated by semicolon (not case sensitive) | `--type Application` |
 | `--keywords {keywords}`| Filter apps by keywords separated by semicolon (not case sensitive) | `--keywords GPU;Radeon` |
 | `--exclude {flag}`| Remove apps that fit the flag's criteria | `--exclude --type GPU;Radeon` |

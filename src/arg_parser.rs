@@ -18,7 +18,8 @@ pub enum Argument {
 
 #[derive(Debug)]
 pub enum ParserError {
-    InvalidArgument(String)
+    InvalidArgument(String),
+    NoOutputFlag
 }
 
 
@@ -62,12 +63,16 @@ impl Arguments {
             }
         }
 
+        if arg_struct.output.is_none() {
+            return Err(ParserError::NoOutputFlag);
+        }
+
         return Ok(arg_struct);
     }
 
     fn enumize(arguments: &[String]) -> Result<(usize, Argument), ParserError> {
         return match arguments[0].as_str() {
-            "--category" => {
+            "--categories" => {
                 Ok((2, Argument::Category(arguments[1].clone().to_lowercase())))
             }
             "--type" => {
