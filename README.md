@@ -1,5 +1,5 @@
 # Application Filter
-A CLI app that filters your /usr/share/applications by fields provided in the .desktop for each app and prints to stdout. Perfect for showing specific apps in your rofi window.
+A CLI app that filters your `/usr/share/applications` by fields provided in the .desktop for each app and prints to stdout. Perfect for showing specific apps in your rofi window.
 
 
 ## Manual
@@ -11,7 +11,11 @@ A CLI app that filters your /usr/share/applications by fields provided in the .d
 | `--nodisplay`| Show apps with `NoDisplay` set to `true` (hidden by default) | `--nodisplay` |
 | `--exclude {filter}`| Remove apps that fit the flag's criteria | `--exclude --type GPU,Radeon` |
 | `--output {field}`| What to output for apps that meet the filter | `--output exec` <br> `--output Name` |
-| `--stdin {field}` | search apps for the field with the value provided in stdin, and then output the entire .desktop file or a specific field provided with `--output`. Using this argument ignores all filters | `--stdin Name`<br>`--stdin exec`
+| `--stdin {field}` | Search apps for the field with the value provided in stdin, and then output the field provided with `--output`| `--stdin Name`<br>`--stdin categories`
+
+### Terms
+* `filter` refers to a flag that filters results. This does not include `--nodisplay`
+* `field` refers to one of `categories`, `type`, `keywords`, `name`, `file`, `nodisplay`, or `exec`
 
 ## Examples
 
@@ -27,4 +31,12 @@ The second ApplicationFilter takes the chosen application, searches for the appl
 ```
 $ printf "system\nnetwork\ngtk" | rofi -dmenu | ApplicationFilter --stdin categories --output name > /tmp/selection && cat /tmp/selection | rofi -dmenu | ApplicationFilter --stdin name --output exec | sh
 ```
+The `--stdin categories` filter will look for all apps that match the category provided in stdin, and output the names of the apps into a temp file.<br>
 Its worth mentioning that `--stdin` does NOT separate the input string on commas, so passing `system,network` will not have the desired output
+
+---
+If we for some reason want to make this command even less legible, we can add filters with the `--stdin` flag
+```
+$ printf "system\nnetwork\ngtk" | rofi -dmenu | ApplicationFilter --stdin categories --nodisplay --type application --output name > /tmp/selection && cat /tmp/selection | rofi -dmenu | ApplicationFilter --stdin name --output exec | sh
+```
+The `--nodisplay` flag will display apps with `NoDisplay=true`, and the `--type application` flag filters out desktop files that arent applications.

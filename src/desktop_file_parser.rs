@@ -139,7 +139,8 @@ impl DesktopFile {
             "categories" => GetValue::VecString(&self.categories),
             "keywords" => GetValue::VecString(&self.keywords),
             "nodisplay" => GetValue::Bool(self.nodisplay),
-            _ => GetValue::String(&self.file)
+            "file" => GetValue::String(&self.file),
+            _ => GetValue::String("")
         }
     }
 }

@@ -30,8 +30,9 @@ fn main() {
     let mut data = desktop_file_parser::DesktopFile::init();
 
     let mut stdout = String::from("");
-
     let mut stdin = String::from("");
+
+    // construct stdin if there is one
     if args.stdin.is_some() {
         let _ = std::io::stdin().read_to_string(&mut stdin);
         stdin.make_ascii_lowercase();
@@ -40,10 +41,12 @@ fn main() {
 
     for app in applications {
         
+        // parse the file
         let filepath = app.unwrap().path().into_os_string().into_string().unwrap();
         let file = fs::read_to_string(&filepath).expect("Failed to open");
         data.parse_desktop_file(file, filepath);
 
+        // filter by stdin if it exists
         if args.stdin.is_some() {
             let app_matches_stdin = match data.get(args.stdin.as_ref().expect("")) {
                 desktop_file_parser::GetValue::String(s) => s.to_lowercase() == stdin,
@@ -56,6 +59,7 @@ fn main() {
             }
         }
 
+        // run checks from flags amd append to stdout
         if data.passes_checks(&args) {
             match data.get(&args.output.as_ref().expect("")) {
                 desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
@@ -67,39 +71,12 @@ fn main() {
                     let _ = stdout.pop();
                 }
                 desktop_file_parser::GetValue::Bool(s) => {
-                    s.to_string();
+                    stdout.push_str(&s.to_string());
                 }
             }
             stdout.push_str("\n");
         }
     }
-
-    // if args.stdin.is_none() {
-    // } else {
-
-
-    //     for entry in entries {
-    //         let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
-    //         let file = fs::read_to_string(&filepath).expect("Failed to open");
-    //         data.parse_desktop_file(file, filepath);
-
-            
-
-    //         if app_matches_stdin {
-    //             match data.get(&args.output.as_ref().expect("")) {
-    //                 desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
-    //                 desktop_file_parser::GetValue::VecString(s) => {
-    //                     for i in s {
-    //                         stdout.push_str(i);
-    //                         stdout.push_str(",");
-    //                     }
-    //                     let _ = stdout.pop();
-    //                 }
-    //             }
-    //             stdout.push_str("\n");
-    //         }
-    //     }
-    // }
-
+    
     println!("{}", stdout);
 }
