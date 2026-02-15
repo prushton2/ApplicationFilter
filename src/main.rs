@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::Read;
 use std::process::exit;
 
 mod arg_parser;
@@ -30,15 +31,33 @@ fn main() {
 
     let mut stdout = String::from("");
 
-    for entry in entries {
-        let filepath = entry.unwrap().path();
-        let file = fs::read_to_string(&filepath).expect("Failed to open");
-        
-        data.parse_desktop_file(file, filepath.into_os_string().into_string().unwrap());
-        if data.passes_checks(&args) {
-            // println!("{:?}", data.name)
-            stdout.push_str(data.get(&args.output.clone().unwrap()));
-            stdout.push_str("\n");
+    if args.stdin.is_none() {
+        for entry in entries {
+            // let filepathbuf: PathBuf =;
+            
+            let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
+            let file = fs::read_to_string(&filepath).expect("Failed to open");
+            
+            data.parse_desktop_file(file, filepath);
+            if data.passes_checks(&args) {
+                stdout.push_str(data.get(&args.output.as_ref().expect("")));
+                stdout.push_str("\n");
+            }
+        }
+    } else {
+        let mut stdin = String::from("");
+        let _ = std::io::stdin().read_to_string(&mut stdin);
+        stdin = stdin.trim().to_lowercase();
+
+        for entry in entries {
+            let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
+            let file = fs::read_to_string(&filepath).expect("Failed to open");
+            data.parse_desktop_file(file, filepath);
+
+            if data.get(args.stdin.as_ref().expect("")).to_lowercase() == stdin {
+                stdout.push_str(data.get(args.output.as_ref().expect("")))
+            }
+
         }
     }
 

@@ -57,7 +57,7 @@ impl DesktopFile {
     fn passes_check(&self, filter: &arg_parser::Argument) -> bool {
         match filter {
             arg_parser::Argument::Category(t) => {
-                for i in t.split(";").map(|s| s.to_string()) {
+                for i in t.split(",").map(|s| s.to_string()) {
                     if !self.categories.contains(&i) {
                         return false
                     }
@@ -65,7 +65,7 @@ impl DesktopFile {
                 return true
             },
             arg_parser::Argument::Type(t) => {
-                for i in t.split(";").map(|s| s.to_string()) {
+                for i in t.split(",").map(|s| s.to_string()) {
                     if !self._type.contains(&i) {
                         return false
                     }
@@ -73,7 +73,7 @@ impl DesktopFile {
                 return true
             },
             arg_parser::Argument::Keywords(t) => {
-                for i in t.split(";").map(|s| s.to_string()) {
+                for i in t.split(",").map(|s| s.to_string()) {
                     if !self.keywords.contains(&i) {
                         return false
                     }
