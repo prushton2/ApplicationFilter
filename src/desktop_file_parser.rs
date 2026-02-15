@@ -2,28 +2,29 @@ use crate::arg_parser;
 
 #[derive(Debug)]
 pub struct DesktopFile {
-    pub filename: String,
+    pub file: String,
     pub name: String,
     pub exec: String,
-    pub categories: Vec<String>,
     pub _type: String,
+    pub categories: Vec<String>,
     pub keywords: Vec<String>,
 }
 
 impl DesktopFile {
     pub fn init() -> Self {
         return DesktopFile {
-            filename: String::from(""),
+            file: String::from(""),
             name: String::from(""),
             exec: String::from(""),
-            categories: vec![],
             _type: String::from(""),
+            categories: vec![],
             keywords: vec![]
         }
     }
 
-    pub fn parse_desktop_file(&mut self, file: String, name: String) {
-        self.filename = name;
+    pub fn parse_desktop_file(&mut self, file: String, filename: String) {
+        self.file = filename;
+
         for i in file.split("\n") {
             if i.chars().nth(0) == Some('[') && i != "[Desktop Entry]" {
                 break;
@@ -31,15 +32,36 @@ impl DesktopFile {
 
             let mut parts = i.split("=");
 
-            // this is a lot, should improve
-            match parts.nth(0).expect("No component").to_lowercase().as_str() {
-                "name" => {self.name = parts.nth(0).expect("God i hope you dont see this error").to_string()}
-                "exec" => {self.exec = parts.nth(0).expect("God i hope you dont see this error").to_string()}
+            let lhs: String = match parts.nth(0) {
+                Some(t) => t.to_lowercase().to_string(),
+                None => continue
+            };
 
-                "type" => {self._type = parts.nth(0).expect("God i hope you dont see this error").to_string().to_lowercase()}
+            let mut rhs: String = match parts.nth(0) {
+                Some(t) => t.to_string(),
+                None => continue
+            };
 
-                "categories" => {self.categories = parts.nth(0).expect("God i hope you dont see this error").to_string().to_lowercase().split(";").map(|s| s.to_string()).collect()}
-                "keywords" => {self.keywords = parts.nth(0).expect("God i hope you dont see this error").to_string().to_lowercase().split(";").map(|s| s.to_string()).collect()}
+            // maybe theres something i can do about the splitting? i want to cut down on the memory allocations here.
+            match lhs.as_str() {
+                "name" => {
+                    self.name = rhs;
+                }
+                "exec" => {
+                    self.exec = rhs;
+                }
+                "type" => {
+                    rhs.make_ascii_lowercase();
+                    self._type = rhs;
+                }
+                "categories" => {
+                    rhs.make_ascii_lowercase();
+                    self.categories = rhs.split(";").map(|s| s.to_string()).collect()
+                }
+                "keywords" => {
+                    rhs.make_ascii_lowercase();
+                    self.keywords = rhs.split(";").map(|s| s.to_string()).collect()
+                }
                 _ => {}
             }
         }
@@ -91,7 +113,7 @@ impl DesktopFile {
         return match field {
             "name" => &self.name,
             "exec" => &self.exec,
-            _ => &self.filename
+            _ => &self.file
         }
     }
 }
