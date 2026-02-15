@@ -39,7 +39,16 @@ fn main() {
             
             data.parse_desktop_file(file, filepath);
             if data.passes_checks(&args) {
-                stdout.push_str(data.get(&args.output.as_ref().expect("")));
+                match data.get(&args.output.as_ref().expect("")) {
+                    desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
+                    desktop_file_parser::GetValue::VecString(s) => {
+                        for i in s {
+                            stdout.push_str(i);
+                            stdout.push_str(",");
+                        }
+                        let _ = stdout.pop();
+                    }
+                }
                 stdout.push_str("\n");
             }
         }
@@ -47,20 +56,34 @@ fn main() {
     } else {
         let mut stdin = String::from("");
         let _ = std::io::stdin().read_to_string(&mut stdin);
-        stdin = stdin.trim().to_lowercase();
+        stdin.make_ascii_lowercase();
+        stdin = stdin.trim().to_string();
 
         for entry in entries {
             let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
             let file = fs::read_to_string(&filepath).expect("Failed to open");
             data.parse_desktop_file(file, filepath);
 
-            if data.get(args.stdin.as_ref().expect("")).to_lowercase() == stdin {
-                stdout.push_str(data.get(args.output.as_ref().expect("")))
+            let app_matches_stdin = match data.get(args.stdin.as_ref().expect("")) {
+                desktop_file_parser::GetValue::String(s) => s.to_lowercase() == stdin,
+                desktop_file_parser::GetValue::VecString(s) => s.contains(&stdin),
+            };
+
+            if app_matches_stdin {
+                match data.get(&args.output.as_ref().expect("")) {
+                    desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
+                    desktop_file_parser::GetValue::VecString(s) => {
+                        for i in s {
+                            stdout.push_str(i);
+                            stdout.push_str(",");
+                        }
+                        let _ = stdout.pop();
+                    }
+                }
+                stdout.push_str("\n");
             }
         }
-        
     }
 
     println!("{}", stdout);
-    
 }

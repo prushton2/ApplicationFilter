@@ -10,6 +10,11 @@ pub struct DesktopFile {
     pub keywords: Vec<String>,
 }
 
+pub enum GetValue<'a> {
+    String(&'a str),
+    VecString(&'a Vec<String>)
+}
+
 impl DesktopFile {
     pub fn init() -> Self {
         return DesktopFile {
@@ -56,9 +61,15 @@ impl DesktopFile {
                 }
                 "categories" => {
                     rhs.make_ascii_lowercase();
+                    if rhs.chars().last() == Some(';') {
+                        let _ = rhs.pop();
+                    }
                     self.categories = rhs.split(";").map(|s| s.to_string()).collect()
                 }
                 "keywords" => {
+                    if rhs.chars().last() == Some(';') {
+                        let _ = rhs.pop();
+                    }
                     rhs.make_ascii_lowercase();
                     self.keywords = rhs.split(";").map(|s| s.to_string()).collect()
                 }
@@ -109,11 +120,14 @@ impl DesktopFile {
         }
     }
 
-    pub fn get(&self, field: &str) -> &str {
+    pub fn get<'a>(&'a self, field: &str) -> GetValue<'a> {
         return match field {
-            "name" => &self.name,
-            "exec" => &self.exec,
-            _ => &self.file
+            "name" => GetValue::String(&self.name),
+            "exec" => GetValue::String(&self.exec),
+            "type" => GetValue::String(&self._type),
+            "categories" => GetValue::VecString(&self.categories),
+            "keywords" => GetValue::VecString(&self.keywords),
+            _ => GetValue::String(&self.file)
         }
     }
 }
