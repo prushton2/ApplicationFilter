@@ -6,13 +6,15 @@ pub struct DesktopFile {
     pub name: String,
     pub exec: String,
     pub _type: String,
+    pub nodisplay: bool,
     pub categories: Vec<String>,
     pub keywords: Vec<String>,
 }
 
 pub enum GetValue<'a> {
     String(&'a str),
-    VecString(&'a Vec<String>)
+    VecString(&'a Vec<String>),
+    Bool(bool)
 }
 
 impl DesktopFile {
@@ -21,6 +23,7 @@ impl DesktopFile {
             file: String::from(""),
             name: String::from(""),
             exec: String::from(""),
+            nodisplay: false,
             _type: String::from(""),
             categories: vec![],
             keywords: vec![]
@@ -29,6 +32,7 @@ impl DesktopFile {
 
     pub fn parse_desktop_file(&mut self, file: String, filename: String) {
         self.file = filename;
+        self.nodisplay = false;
 
         for i in file.split("\n") {
             if i.chars().nth(0) == Some('[') && i != "[Desktop Entry]" {
@@ -73,6 +77,10 @@ impl DesktopFile {
                     rhs.make_ascii_lowercase();
                     self.keywords = rhs.split(";").map(|s| s.to_string()).collect()
                 }
+                "nodisplay" => {
+                    rhs.make_ascii_lowercase();
+                    self.nodisplay = rhs == "true";
+                }
                 _ => {}
             }
         }
@@ -80,6 +88,9 @@ impl DesktopFile {
 
     pub fn passes_checks(&self, args: &arg_parser::Arguments) -> bool {
         for filter in &args.filters {
+            if self.nodisplay && !args.display_nodisplay {
+                return false;
+            }
             if !self.passes_check(filter) {
                 return false;
             }
@@ -127,6 +138,7 @@ impl DesktopFile {
             "type" => GetValue::String(&self._type),
             "categories" => GetValue::VecString(&self.categories),
             "keywords" => GetValue::VecString(&self.keywords),
+            "nodisplay" => GetValue::Bool(self.nodisplay),
             _ => GetValue::String(&self.file)
         }
     }

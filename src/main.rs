@@ -25,65 +25,81 @@ fn main() {
         }
     };
 
-    let entries = fs::read_dir("/usr/share/applications").unwrap();
+    let applications = fs::read_dir("/usr/share/applications").unwrap();
 
     let mut data = desktop_file_parser::DesktopFile::init();
 
     let mut stdout = String::from("");
 
-    if args.stdin.is_none() {
-        for entry in entries {
-            
-            let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
-            let file = fs::read_to_string(&filepath).expect("Failed to open");
-            
-            data.parse_desktop_file(file, filepath);
-            if data.passes_checks(&args) {
-                match data.get(&args.output.as_ref().expect("")) {
-                    desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
-                    desktop_file_parser::GetValue::VecString(s) => {
-                        for i in s {
-                            stdout.push_str(i);
-                            stdout.push_str(",");
-                        }
-                        let _ = stdout.pop();
-                    }
-                }
-                stdout.push_str("\n");
-            }
-        }
-
-    } else {
-        let mut stdin = String::from("");
+    let mut stdin = String::from("");
+    if args.stdin.is_some() {
         let _ = std::io::stdin().read_to_string(&mut stdin);
         stdin.make_ascii_lowercase();
         stdin = stdin.trim().to_string();
+    }
 
-        for entry in entries {
-            let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
-            let file = fs::read_to_string(&filepath).expect("Failed to open");
-            data.parse_desktop_file(file, filepath);
+    for app in applications {
+        
+        let filepath = app.unwrap().path().into_os_string().into_string().unwrap();
+        let file = fs::read_to_string(&filepath).expect("Failed to open");
+        data.parse_desktop_file(file, filepath);
 
+        if args.stdin.is_some() {
             let app_matches_stdin = match data.get(args.stdin.as_ref().expect("")) {
                 desktop_file_parser::GetValue::String(s) => s.to_lowercase() == stdin,
                 desktop_file_parser::GetValue::VecString(s) => s.contains(&stdin),
+                desktop_file_parser::GetValue::Bool(s) => (stdin == "true") == s
             };
 
-            if app_matches_stdin {
-                match data.get(&args.output.as_ref().expect("")) {
-                    desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
-                    desktop_file_parser::GetValue::VecString(s) => {
-                        for i in s {
-                            stdout.push_str(i);
-                            stdout.push_str(",");
-                        }
-                        let _ = stdout.pop();
-                    }
-                }
-                stdout.push_str("\n");
+            if !app_matches_stdin {
+                continue
             }
         }
+
+        if data.passes_checks(&args) {
+            match data.get(&args.output.as_ref().expect("")) {
+                desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
+                desktop_file_parser::GetValue::VecString(s) => {
+                    for i in s {
+                        stdout.push_str(i);
+                        stdout.push_str(",");
+                    }
+                    let _ = stdout.pop();
+                }
+                desktop_file_parser::GetValue::Bool(s) => {
+                    s.to_string();
+                }
+            }
+            stdout.push_str("\n");
+        }
     }
+
+    // if args.stdin.is_none() {
+    // } else {
+
+
+    //     for entry in entries {
+    //         let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
+    //         let file = fs::read_to_string(&filepath).expect("Failed to open");
+    //         data.parse_desktop_file(file, filepath);
+
+            
+
+    //         if app_matches_stdin {
+    //             match data.get(&args.output.as_ref().expect("")) {
+    //                 desktop_file_parser::GetValue::String(s) => stdout.push_str(s),
+    //                 desktop_file_parser::GetValue::VecString(s) => {
+    //                     for i in s {
+    //                         stdout.push_str(i);
+    //                         stdout.push_str(",");
+    //                     }
+    //                     let _ = stdout.pop();
+    //                 }
+    //             }
+    //             stdout.push_str("\n");
+    //         }
+    //     }
+    // }
 
     println!("{}", stdout);
 }

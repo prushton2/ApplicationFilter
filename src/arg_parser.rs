@@ -1,6 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct Arguments {
     pub filters: Vec<Argument>,
+    pub display_nodisplay: bool,
     pub output: Option<String>,
     pub stdin: Option<String>,
 }
@@ -12,6 +13,7 @@ pub enum Argument {
     Type(String),
     Keywords(String),
     Exclude(Box<Argument>),
+    NoDisplay,
     Output(String),
     Stdin(String),
 }
@@ -51,6 +53,7 @@ impl Arguments {
 
         let mut arg_struct: Self = Self {
             filters: vec![],
+            display_nodisplay: false,
             output: None,
             stdin: None
         };
@@ -61,7 +64,8 @@ impl Arguments {
                 Argument::Type(t) => arg_struct.filters.push(Argument::Type(t)),
                 Argument::Keywords(t) => arg_struct.filters.push(Argument::Keywords(t)),
                 Argument::Exclude(t) => arg_struct.filters.push(Argument::Exclude(t)),
-
+                
+                Argument::NoDisplay => arg_struct.display_nodisplay = true,
                 Argument::Output(t) => arg_struct.output = Some(t),
                 Argument::Stdin(t) => arg_struct.stdin = Some(t)
             }
@@ -92,6 +96,9 @@ impl Arguments {
                 };
 
                 Ok((1 + sub_arg.0, Argument::Exclude(Box::new(sub_arg.1))))
+            }
+            "--nodisplay" => {
+                Ok((1, Argument::NoDisplay))
             }
             "--output" => {
                 Ok((2, Argument::Output(arguments[1].clone().to_lowercase())))

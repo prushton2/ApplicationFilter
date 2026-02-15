@@ -8,6 +8,7 @@ A CLI app that filters your /usr/share/applications by fields provided in the .d
 | `--categories {categories}`| Filter apps by category separated by comma (not case sensitive) | `--categories System,Network` |
 | `--type {type}`| Filter apps by type separated by comma (not case sensitive) | `--type Application` |
 | `--keywords {keywords}`| Filter apps by keywords separated by comma (not case sensitive) | `--keywords GPU,Radeon` |
+| `--nodisplay`| Show apps with `NoDisplay` set to `true` (hidden by default) | `--nodisplay` |
 | `--exclude {filter}`| Remove apps that fit the flag's criteria | `--exclude --type GPU,Radeon` |
 | `--output {field}`| What to output for apps that meet the filter | `--output exec` <br> `--output Name` |
 | `--stdin {field}` | search apps for the field with the value provided in stdin, and then output the entire .desktop file or a specific field provided with `--output`. Using this argument ignores all filters | `--stdin Name`<br>`--stdin exec`
