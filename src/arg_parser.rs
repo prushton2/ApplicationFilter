@@ -29,7 +29,7 @@ impl Arguments {
         let mut arguments: Vec<Argument> = vec![];
         
         loop {
-            let mut slice = &arg_string[start_index..];
+            let slice = &arg_string[start_index..];
             
             let (offset, argument) = match Self::enumize(slice) {
                 Ok(t) => t,
@@ -68,13 +68,13 @@ impl Arguments {
     fn enumize(arguments: &[String]) -> Result<(usize, Argument), ParserError> {
         return match arguments[0].as_str() {
             "--category" => {
-                Ok((2, Argument::Category(arguments[1].clone())))
+                Ok((2, Argument::Category(arguments[1].clone().to_lowercase())))
             }
             "--type" => {
-                Ok((2, Argument::Type(arguments[1].clone())))
+                Ok((2, Argument::Type(arguments[1].clone().to_lowercase())))
             }
             "--keywords" => {
-                Ok((2, Argument::Keywords(arguments[1].clone())))
+                Ok((2, Argument::Keywords(arguments[1].clone().to_lowercase())))
             }
             "--exclude" => {
                 let sub_arg = match Self::enumize(&arguments[1..]) {
@@ -85,10 +85,10 @@ impl Arguments {
                 Ok((1 + sub_arg.0, Argument::Exclude(Box::new(sub_arg.1))))
             }
             "--output" => {
-                Ok((2, Argument::Output(arguments[1].clone())))
+                Ok((2, Argument::Output(arguments[1].clone().to_lowercase())))
             }
             "--stdin" => {
-                Ok((2, Argument::Stdin(arguments[1].clone())))
+                Ok((2, Argument::Stdin(arguments[1].clone().to_lowercase())))
             }
             _ => {
                 Err(ParserError::InvalidArgument(arguments[0].clone()))
