@@ -1,5 +1,5 @@
 pkgname=ApplicationFilter
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc='A CLI app that filters your /usr/share/applications by fields provided in the .desktop for each app and prints to stdout'
 url='https://github.com/prushton2/ApplicationFilter'

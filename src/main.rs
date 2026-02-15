@@ -77,6 +77,9 @@ fn main() {
             stdout.push_str("\n");
         }
     }
-    
+
+    if stdout.chars().last() == Some('\n') {
+        let _ = stdout.pop();
+    }
     println!("{}", stdout);
 }
