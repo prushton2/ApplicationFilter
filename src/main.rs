@@ -6,9 +6,6 @@ mod arg_parser;
 mod desktop_file_parser;
 
 fn main() {
-    // let arg_string: String = String::from("--category network --type application --output name");
-    // let vec: Vec<String> = arg_string.split(" ").map(|s| s.to_string()).collect();
-    // ;
     let full_clargs: Vec<String> = std::env::args().collect();
     let clargs = &full_clargs[1..];
 
@@ -22,10 +19,13 @@ fn main() {
             println!("No output flag specified. Use --output <field> to specify the field to output for each application");
             exit(1);
         }
+        Err(arg_parser::ParserError::NoArguments) => {
+            println!("No arguments provided");
+            exit(1);
+        }
     };
 
     let entries = fs::read_dir("/usr/share/applications").unwrap();
-    // println!("{:?}", entries);
 
     let mut data = desktop_file_parser::DesktopFile::init();
 
@@ -33,7 +33,6 @@ fn main() {
 
     if args.stdin.is_none() {
         for entry in entries {
-            // let filepathbuf: PathBuf =;
             
             let filepath = entry.unwrap().path().into_os_string().into_string().unwrap();
             let file = fs::read_to_string(&filepath).expect("Failed to open");
@@ -44,6 +43,7 @@ fn main() {
                 stdout.push_str("\n");
             }
         }
+
     } else {
         let mut stdin = String::from("");
         let _ = std::io::stdin().read_to_string(&mut stdin);
@@ -57,8 +57,8 @@ fn main() {
             if data.get(args.stdin.as_ref().expect("")).to_lowercase() == stdin {
                 stdout.push_str(data.get(args.output.as_ref().expect("")))
             }
-
         }
+        
     }
 
     println!("{}", stdout);

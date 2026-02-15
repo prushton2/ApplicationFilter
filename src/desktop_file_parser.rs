@@ -29,9 +29,9 @@ impl DesktopFile {
                 break;
             }
 
-
             let mut parts = i.split("=");
-            // println!("{:?}", parts.nth(0));
+
+            // this is a lot, should improve
             match parts.nth(0).expect("No component").to_lowercase().as_str() {
                 "name" => {self.name = parts.nth(0).expect("God i hope you dont see this error").to_string()}
                 "exec" => {self.exec = parts.nth(0).expect("God i hope you dont see this error").to_string()}
@@ -55,6 +55,8 @@ impl DesktopFile {
     }
 
     fn passes_check(&self, filter: &arg_parser::Argument) -> bool {
+
+        // i think i have a reason to learn macros now
         match filter {
             arg_parser::Argument::Category(t) => {
                 for i in t.split(",").map(|s| s.to_string()) {

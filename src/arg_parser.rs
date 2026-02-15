@@ -19,12 +19,16 @@ pub enum Argument {
 #[derive(Debug)]
 pub enum ParserError {
     InvalidArgument(String),
+    NoArguments,
     NoOutputFlag
 }
 
 
 impl Arguments {
     pub fn parse(arg_string: Vec<String>) -> Result<Self, ParserError> {
+        if arg_string.len() == 0 {
+            return Err(ParserError::NoArguments);
+        }
 
         let mut start_index = 0;
         let mut arguments: Vec<Argument> = vec![];
